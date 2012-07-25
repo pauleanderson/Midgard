@@ -29,7 +29,6 @@ import com.google.api.services.oauth2.model.Userinfo;
 import com.google.api.services.drive.Drive.Files.Get;
 import com.google.api.client.googleapis.media.MediaHttpDownloader;
 
-import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -62,6 +61,9 @@ public class OAuth2Sample {
  public static void main(String[] args) {
    try {
      try {
+       // get file id
+       String fileID = args[0];
+    	 
        // authorization
        Credential credential =
            OAuth2Native.authorize(HTTP_TRANSPORT, JSON_FACTORY, new LocalServerReceiver(), SCOPES);
@@ -69,14 +71,15 @@ public class OAuth2Sample {
        oauth2 = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(
            "Google-OAuth2Sample/1.0").build();
        // run commands
-       //tokenInfo(credential.getAccessToken());
-       //userInfo();
+       tokenInfo(credential.getAccessToken());
+       userInfo();
        
        Drive service = new Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).build();
-       File fileToDownload = service.files().get("0B7Jfx3RRVE5YQUYtbVMtQW0zaUk").execute();
+       File fileToDownload = service.files().get(fileID).execute();
+       String name = fileToDownload.getTitle().split("\\.")[0];
        GenericUrl u = new GenericUrl(fileToDownload.getDownloadUrl());
 	   Get request = service.files().get(fileToDownload.getId());
-	   FileOutputStream bos = new FileOutputStream("downloaded.dat");
+	   FileOutputStream bos = new FileOutputStream("../"+name+".dat");
 	   MediaHttpDownloader mhd = request.getMediaHttpDownloader();
 	   mhd.setChunkSize(10 * 0x100000);
 	   mhd.download(u, bos);
