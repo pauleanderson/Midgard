@@ -27,7 +27,9 @@ import java.awt.Desktop.Action;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 
 /**
  * Implements OAuth authentication "native" flow recommended for installed clients in which the end
@@ -60,7 +62,7 @@ import java.net.URI;
  */
 public class OAuth2Native {
 
-  private static final String RESOURCE_LOCATION = "/client_secrets.json";
+  private static final String RESOURCE_LOCATION = "client_secrets.json";
 
   private static final String RESOURCE_PATH =
       ("shared/shared-sample-cmdline/src/main/resources" + RESOURCE_LOCATION).replace(
@@ -115,13 +117,17 @@ public class OAuth2Native {
       // redirect to an authorization page
       // TODO(mlinder, 1.11.0-beta): Use setAccessType("offline").setApprovalPrompt("force") with
       // FileCredentialStore.
-      FileCredentialStore fcs = new FileCredentialStore(new File("credentials.dat"), jsonFactory);
+
+      File cred = new File("credentials.dat");
+      
+      FileCredentialStore fcs = new FileCredentialStore(cred , jsonFactory);
       GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
           transport, jsonFactory, clientSecrets, scopes).setAccessType("offline")
-          .setApprovalPrompt("force").setCredentialStore(fcs).build();
+          .setApprovalPrompt("auto").setCredentialStore(fcs).build();
       	  //.setAccessType("online")
           //.setApprovalPrompt("auto").build();
       Credential c = flow.loadCredential("datascienceresearch@gmail.com");
+      
       if (c != null)
     	  return c;
       else {      
